@@ -546,7 +546,7 @@ let check_array env x =
 let pp_initi env pp fmt (x, n, ws) =
   let i = create_name env "i" in
   Format.fprintf fmt 
-    "@[(%a.init%i (fun %s => (%a).[%s]))@]"
+    "@[(%a.init%i (fun %s => %a.[%s]))@]"
     (pp_WArray env) (arr_size ws n) (int_of_ws ws) i pp x i
     
 let pp_print_i fmt z = 
@@ -603,7 +603,7 @@ let rec pp_expr pd env fmt (e:expr) =
     let x = L.unloc x in
     let (xws,n) = array_kind x.v_ty in
     if ws = xws && aa = Warray_.AAscale then
-      Format.fprintf fmt "@[(%a.init (fun %s => %a.[%a + %s]))@]"
+      Format.fprintf fmt "@[(%a.init (fun %s => %a.[(%a + %s)]))@]"
         (pp_Array env) len
         i
         (pp_var env) x
@@ -943,7 +943,7 @@ module Normal = struct
       let otys,itys = ty_sopn pd asmOp op es in
       let otys', _ = ty_sopn pd asmOp op' es in
       let pp_e fmt (op,es) = 
-        Format.fprintf fmt "%a %a" (pp_opn pd asmOp) op
+        Format.fprintf fmt "(%a %a)" (pp_opn pd asmOp) op
           (pp_list "@ " (pp_wcast pd env)) (List.combine itys es) in
       if List.length lvs = 1 then
         let pp_e fmt (op, es) =

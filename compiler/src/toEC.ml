@@ -646,7 +646,7 @@ let rec pp_expr pd env fmt (e:expr) =
         | [] -> assert false
         | [e] -> Format.fprintf fmt "%a" (pp_expr pd env) e
         | e::es -> 
-          Format.fprintf fmt "@[(%a %%%% 2^%i +@ 2^%i * %a)@]"
+          Format.fprintf fmt "@[((%a %%%% (2 ^ %i)) +@ ((2 ^ %i) * %a))@]"
             (pp_expr pd env) e i i aux es in
       Format.fprintf fmt "(W%a.of_int %a)" pp_size ws aux (List.rev es)
     | Ocombine_flags c -> 

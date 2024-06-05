@@ -565,7 +565,7 @@ let pp_cast env pp fmt (ty,ety,e) =
       let wse, ne = array_kind ety in
       let i = create_name env "i" in
       Format.fprintf fmt 
-        "@[(%a.init@ (fun %s => get%i@ %a@ %s))@]"
+        "@[(%a.init@ (fun %s => (get%i@ %a@ %s)))@]"
         (pp_Array env) n
         i
         (int_of_ws ws)

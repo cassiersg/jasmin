@@ -696,8 +696,10 @@ let pp_rty env fmt tys =
       (pp_list " *@ " (pp_ty env)) tys 
 
 let pp_ret env fmt xs = 
-  Format.fprintf fmt "@[return (%a);@]"
-    (pp_list ",@ " (fun fmt x -> pp_var env fmt (L.unloc x))) xs
+    match xs with
+    | [x] -> Format.fprintf fmt "@[return %a;@]" (pp_var env) (L.unloc x)
+    | _ -> Format.fprintf fmt "@[return (%a);@]"
+        (pp_list ",@ " (fun fmt x -> pp_var env fmt (L.unloc x))) xs
 
 let pp_lval1 pd env pp_e fmt (lv, (ety, e)) = 
   let lty = ty_lval lv in
@@ -721,7 +723,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
       let nws = n * int_of_ws xws in
       let nws8 = nws / 8 in
       Format.fprintf fmt 
-        "@[%a <-@ @[(%a.init@ (%a.get%i (%a.set%i%s %a %a (%a))));@]@]"
+        "@[%a <-@ @[(%a.init@ (%a.get%i (%a.set%i%s %a %a %a)));@]@]"
         (pp_var env) x 
         (pp_Array env) n 
         (pp_WArray env) nws8 
@@ -736,7 +738,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
     if ws = xws && aa = Warray_.AAscale then
       let i = create_name env "i" in
       Format.fprintf fmt 
-      "@[%a <- @[(%a.init@ @[(fun %s => (if (%a <= %s < (%a + %i))@ then %a.[(%s-%a)]@ else %a.[%s]))@])@];@]"
+      "@[%a <- @[(%a.init@ @[(fun %s => (if (%a <= %s < (%a + %i))@ then %a.[(%s - %a)]@ else %a.[%s]))@])@];@]"
       (pp_var env) x 
       (pp_Array env) n 
       i

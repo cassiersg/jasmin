@@ -705,7 +705,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
   match lv with 
   | Lnone _ -> assert false
   | Lmem(_, ws, x, e1) ->
-    Format.fprintf fmt "@[Glob.mem <-@ (storeW%a Glob.mem (W%d.to_uint %a) (%a));@]" pp_size ws
+    Format.fprintf fmt "@[Glob.mem <-@ (storeW%a Glob.mem (W%d.to_uint %a) %a);@]" pp_size ws
       (int_of_ws pd)
       (pp_wcast pd env) (add_ptr pd (gkvar x) e1) pp_e e
   | Lvar x  -> 

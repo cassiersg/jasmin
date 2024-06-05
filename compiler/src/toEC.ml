@@ -705,7 +705,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
   match lv with 
   | Lnone _ -> assert false
   | Lmem(_, ws, x, e1) ->
-    Format.fprintf fmt "@[Glob.mem <-@ storeW%a Glob.mem (W%d.to_uint %a) (%a);@]" pp_size ws
+    Format.fprintf fmt "@[Glob.mem <-@ (storeW%a Glob.mem (W%d.to_uint %a) (%a));@]" pp_size ws
       (int_of_ws pd)
       (pp_wcast pd env) (add_ptr pd (gkvar x) e1) pp_e e
   | Lvar x  -> 
@@ -721,7 +721,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
       let nws = n * int_of_ws xws in
       let nws8 = nws / 8 in
       Format.fprintf fmt 
-        "@[%a <-@ @[%a.init@ (%a.get%i (%a.set%i%s %a %a (%a)));@]@]"
+        "@[%a <-@ @[(%a.init@ (%a.get%i (%a.set%i%s %a %a (%a))));@]@]"
         (pp_var env) x 
         (pp_Array env) n 
         (pp_WArray env) nws8 
@@ -736,7 +736,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
     if ws = xws && aa = Warray_.AAscale then
       let i = create_name env "i" in
       Format.fprintf fmt 
-      "@[%a <- @[%a.init@ @[(fun %s => if %a <= %s < %a + %i@ then %a.[%s-%a]@ else %a.[%s]);@]@]@]"
+      "@[%a <- @[(%a.init@ @[(fun %s => (if (%a <= %s < (%a + %i))@ then %a.[(%s-%a)]@ else %a.[%s]))@])@];@]"
       (pp_var env) x 
       (pp_Array env) n 
       i
@@ -760,7 +760,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
       let pp_a fmt () =
         let i = create_name env "i" in
         Format.fprintf fmt 
-          "@[(%a.init8@ (fun %s =>@ if %a <= %s < %a + %i@ then %a.get8 %a (%s - %a)@ else %a.get8 %a %s))@]"
+          "@[(%a.init8@ (fun %s =>@ (if (%a <= %s < (%a + %i))@ then (%a.get8 %a (%s - %a))@ else (%a.get8 %a %s))))@]"
         (pp_WArray env) nws8
         i
         pp_start () i pp_start () len8
@@ -769,7 +769,7 @@ let pp_lval1 pd env pp_e fmt (lv, (ety, e)) =
         
         in
         
-      Format.fprintf fmt "@[%a <- @[%a.init@ @[(%a.get%i %a);@]"
+      Format.fprintf fmt "@[%a <- @[(%a.init@ @[(%a.get%i %a)@])@];@]"
        (pp_var env) x 
        (pp_Array env) n 
        (pp_WArray env) nws8 (int_of_ws xws)

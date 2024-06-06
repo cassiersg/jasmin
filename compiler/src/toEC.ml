@@ -945,8 +945,12 @@ module Normal = struct
       let otys,itys = ty_sopn pd asmOp op es in
       let otys', _ = ty_sopn pd asmOp op' es in
       let pp_e fmt (op,es) = 
-        Format.fprintf fmt "(%a %a)" (pp_opn pd asmOp) op
-          (pp_list "@ " (pp_wcast pd env)) (List.combine itys es) in
+          if es = [] then
+              Format.fprintf fmt "(%a)" (pp_opn pd asmOp) op
+          else
+            Format.fprintf fmt "(%a %a)" (pp_opn pd asmOp) op
+            (pp_list "@ " (pp_wcast pd env)) (List.combine itys es)
+      in
       if List.length lvs = 1 then
         let pp_e fmt (op, es) =
           pp_wzeroext pp_e fmt (List.hd otys) (List.hd otys') (op, es) in

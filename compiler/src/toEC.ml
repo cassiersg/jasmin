@@ -4,6 +4,13 @@ open Prog
 open PrintCommon
 module E = Expr
 
+let rec pp_list_pre sep pp fmt xs =
+  let pp_list_pre = pp_list_pre sep pp in
+  match xs with
+  | []      -> ()
+  | [x]     -> Format.fprintf fmt "%(%)%a" sep pp x
+  | x :: xs -> Format.fprintf fmt "%(%)%a%a" sep pp x pp_list_pre xs
+
 let pp_size fmt sz =
   Format.fprintf fmt "%i" (int_of_ws sz)
 
@@ -1133,8 +1140,8 @@ module Leak = struct
       let otys,itys = ty_sopn pd asmOp op es in
       let otys', _ = ty_sopn pd asmOp op' es in
       let pp fmt (op, es) = 
-        Format.fprintf fmt "<- %a %a" (pp_opn pd asmOp) op
-          (pp_list "@ " (pp_wcast pd env)) (List.combine itys es) in
+        Format.fprintf fmt "<- (%a%a)" (pp_opn pd asmOp) op
+          (pp_list_pre "@ " (pp_wcast pd env)) (List.combine itys es) in
       pp_leaks_opn pd asmOp env fmt op' es;
       pp_call pd env fmt lvs otys otys' pp (op, es)
       

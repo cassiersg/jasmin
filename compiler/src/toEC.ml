@@ -990,8 +990,12 @@ module Normal = struct
         (pp_expr pd env) e (pp_cmd pd asmOp env) c1 (pp_cmd pd asmOp env) c2
       
     | Cwhile(_, c1, e,c2) ->
-      Format.fprintf fmt "@[<v>%a@ while (%a) {@   %a@ }@]"
-        (pp_cmd pd asmOp env) c1 (pp_expr pd env) e (pp_cmd pd asmOp env) (c2@c1)
+      if c1 = [] then
+        Format.fprintf fmt "@[<v>while (%a) {@   %a@ }@]"
+          (pp_expr pd env) e (pp_cmd pd asmOp env) c2
+      else
+        Format.fprintf fmt "@[<v>%a@ while (%a) {@   %a@ }@]"
+          (pp_cmd pd asmOp env) c1 (pp_expr pd env) e (pp_cmd pd asmOp env) (c2@c1)
       
     | Cfor(i, (d,e1,e2), c) ->
       (* decreasing for loops have bounds swaped *)

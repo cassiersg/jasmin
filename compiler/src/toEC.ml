@@ -1066,7 +1066,7 @@ module Leak = struct
     | ConstantTime -> 
       let leaks = leaks_es pd [e1;e2] in
       Format.fprintf fmt 
-        "@[leakages <- ((LeakFor (%a,%a)) :: ((LeakAddr @[[%a]@]) :: leakages));@]@ "
+        "@[leakages <- ((LeakFor (%a, %a)) :: ((LeakAddr @[[%a]@]) :: leakages));@]@ "
         (pp_expr pd env) e1 (pp_expr pd env) e2 
         (pp_list ";@ " (pp_expr pd env)) leaks
     | Normal -> ()
@@ -1201,7 +1201,7 @@ module Leak = struct
         if d = UpTo then pp_i , pp_e2
         else pp_e2, pp_i in
       Format.fprintf fmt 
-        "@[<v>%a%a <- %a;@ while (%a < %a) {@   @[<v>%a@ %a <- %a %s 1;@]@ }@]"
+        "@[<v>%a%a <- %a;@ while ((%a < %a)) {@   @[<v>%a@ %a <- (%a %s 1);@]@ }@]"
         pp_init () 
         pp_i () (pp_expr pd env) e1 
         pp_i1 () pp_i2 ()

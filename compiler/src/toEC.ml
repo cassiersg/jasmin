@@ -1034,7 +1034,7 @@ end
 module Leak = struct 
 
   let pp_leaks pd env fmt es = 
-    Format.fprintf fmt "leakages <- ((LeakAddr @[[%a]@]) :: leakages);@ "
+    Format.fprintf fmt "@[leakages <- ((LeakAddr @[[%a]@]) :: leakages);@]@ "
       (pp_list ";@ " (pp_expr pd env)) es
 
   let pp_leaks_e pd env fmt e =
@@ -1057,7 +1057,7 @@ module Leak = struct
     | ConstantTime -> 
       let leaks = leaks_e pd e in
       Format.fprintf fmt 
-        "leakages <- ((LeakCond %a) :: ((LeakAddr @[[%a]@]) :: leakages));@ "
+        "@[leakages <- ((LeakCond %a) :: ((LeakAddr @[[%a]@]) :: leakages));@]@ "
         (pp_expr pd env) e (pp_list ";@ " (pp_expr pd env)) leaks
     | Normal -> ()
 
@@ -1066,7 +1066,7 @@ module Leak = struct
     | ConstantTime -> 
       let leaks = leaks_es pd [e1;e2] in
       Format.fprintf fmt 
-        "leakages <- ((LeakFor (%a,%a)) :: ((LeakAddr @[[%a]@]) :: leakages));@ "
+        "@[leakages <- ((LeakFor (%a,%a)) :: ((LeakAddr @[[%a]@]) :: leakages));@]@ "
         (pp_expr pd env) e1 (pp_expr pd env) e2 
         (pp_list ";@ " (pp_expr pd env)) leaks
     | Normal -> ()

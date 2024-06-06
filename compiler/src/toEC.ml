@@ -1015,7 +1015,7 @@ module Normal = struct
         if d = UpTo then pp_i , pp_e2
         else pp_e2, pp_i in
       Format.fprintf fmt 
-        "@[<v>%a%a <- %a;@ while (%a < %a) {@   @[<v>%a@ %a <- (%a %s 1);@]@ }@]"
+        "@[<v>%a%a <- %a;@ while ((%a < %a)) {@   @[<v>%a@ %a <- (%a %s 1);@]@ }@]"
         pp_init () 
         pp_i () (pp_expr pd env) e1 
         pp_i1 () pp_i2 ()

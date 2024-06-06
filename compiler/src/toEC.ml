@@ -800,7 +800,7 @@ let pp_wzeroext pp_e fmt tyo tyi e =
   if tyi = tyo then pp_e fmt e
   else
     let szi, szo = ws_of_ty tyi, ws_of_ty tyo in
-    Format.fprintf fmt "%a(%a)" pp_zeroext (szi, szo) pp_e e
+    Format.fprintf fmt "(%a %a)" pp_zeroext (szi, szo) pp_e e
 
 let base_op = function
   | Sopn.Oasm (Arch_extra.BaseOp (_, o)) -> Sopn.Oasm (Arch_extra.BaseOp(None,o))

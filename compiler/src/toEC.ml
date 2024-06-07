@@ -1346,12 +1346,12 @@ let pp_prog pd asmOp fmt model globs funcs arrsz warrsz randombytes =
   let pp_mod_arg_sig fmt env =
     if not (Sint.is_empty !(env.randombytes)) then
       let pp_randombytes_decl fmt n =
-        Format.fprintf fmt "proc randombytes_%i(_:W8.t %a.t) : W8.t %a.t" n (pp_Array env) n (pp_Array env) n in
+        Format.fprintf fmt "proc randombytes_%i (_:W8.t %a.t) : W8.t %a.t" n (pp_Array env) n (pp_Array env) n in
       Format.fprintf fmt "module type %s = {@   @[<v>%a@]@ }.@ @ "
         syscall_mod_sig
         (pp_list "@ " pp_randombytes_decl) (Sint.elements !(env.randombytes));
       let pp_randombytes_proc fmt n =
-        Format.fprintf fmt "proc randombytes_%i(a:W8.t %a.t) : W8.t %a.t = {@   a <$ @[dmap %a.darray@ (fun a => %a.init (fun i => %a.get8 a i))@];@   return a;@ }"
+        Format.fprintf fmt "proc randombytes_%i (a:W8.t %a.t) : W8.t %a.t = {@   a <$ @[dmap %a.darray@ (fun a => %a.init (fun i => %a.get8 a i))@];@   return a;@ }"
           n (pp_Array env) n (pp_Array env) n (pp_WArray env) n 
           (pp_Array env) n (pp_WArray env) n
       in

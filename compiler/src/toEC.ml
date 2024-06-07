@@ -1247,13 +1247,13 @@ let pp_fun pd asmOp env fmt f =
 let pp_glob_decl env fmt (x,d) =
   match d with
   | Global.Gword(ws, w) -> 
-    Format.fprintf fmt "@[abbrev %a = %a.of_int %a.@]@ "
+    Format.fprintf fmt "@[abbrev %a = (%a.of_int %a).@]@ "
       (pp_var env) x pp_Tsz ws pp_print_i (Conv.z_of_word ws w)
   | Global.Garr(p,t) ->
     let wz, t = Conv.to_array x.v_ty p t in
     let pp_elem fmt z = 
-      Format.fprintf fmt "%a.of_int %a" pp_Tsz wz pp_print_i z in
-    Format.fprintf fmt "@[abbrev %a = %a.of_list witness [%a].@]@ "
+      Format.fprintf fmt "(%a.of_int %a)" pp_Tsz wz pp_print_i z in
+    Format.fprintf fmt "@[abbrev %a = (%a.of_list witness [%a]).@]@ "
        (pp_var env) x (pp_Array env) (Array.length t) 
        (pp_list ";@ " pp_elem) (Array.to_list t)
 

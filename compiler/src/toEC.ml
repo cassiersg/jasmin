@@ -1235,7 +1235,7 @@ let pp_fun pd asmOp env fmt f =
     if env.model = Normal then Normal.pp_cmd
     else Leak.pp_cmd in
   Format.fprintf fmt 
-    "@[<v>proc %a (%a) : %a = {@   @[<v>%a@ %a@ %a@ %a@]@ }@]"
+    "@[<v>@[proc %a (%a) : %a = {@]@   @[<v>%a@ %a@ %a@ %a@]@ }@]"
     (pp_fname env) f.f_name
     (pp_params env) f.f_args 
     (pp_rty env) f.f_tyout

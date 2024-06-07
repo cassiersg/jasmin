@@ -1214,7 +1214,7 @@ end
 
 let pp_aux fmt env = 
   let pp ty aux = 
-    Format.fprintf fmt "@[var %s:@ %a@];@ " aux (pp_ty env) ty in
+    Format.fprintf fmt "@[var %s:%a@];@ " aux (pp_ty env) ty in
   Mty.iter (fun ty -> List.iter (pp ty)) env.auxv
 
 let pp_fun pd asmOp env fmt f =

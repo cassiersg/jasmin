@@ -34,7 +34,7 @@ Definition is_spill_op o :=
   | _ => None
   end.
 
-Definition to_spill_e s e :=
+Definition to_spill_e s (e : pexpr) :=
   match e with
   | Pvar x => Sv.add x.(gv) s
   | _ => s

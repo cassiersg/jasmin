@@ -25,7 +25,7 @@ val run :
       and type rflag = 'rflag
       and type xreg = 'xreg) ->
   ('reg, 'regx, 'xreg, 'rflag, 'cond, 'asm_op, 'extra_op) Arch_extra.extended_op
-  Expr.uprog ->
+  Expr.prog ->
   Expr.instr_info ->
   CoreIdent.funname ->
   Values.value list ->

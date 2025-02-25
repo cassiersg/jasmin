@@ -1,4 +1,5 @@
 open Jasmin
+open Prog
 open Cmdliner
 open Utils
 
@@ -65,7 +66,7 @@ let parse_and_compile (type reg regx xreg rflag cond asm_op extra_op)
        and type rflag = rflag
        and type cond = cond
        and type asm_op = asm_op
-       and type extra_op = extra_op) pass file =
+       and type extra_op = extra_op) ~wi2i pass file =
   let _env, pprog, _ast =
     try Compile.parse_file Arch.arch_info file with
     | Annot.AnnotationError (loc, code) ->
@@ -81,6 +82,36 @@ let parse_and_compile (type reg regx xreg rflag cond asm_op extra_op)
     with Typing.TyError (loc, code) ->
       hierror ~loc:(Lmore loc) ~kind:"typing error" "%s" code
   in
+
+  let prog =
+    if not wi2i then prog
+    else
+    let fds = snd prog in
+    let fv = List.fold_left (fun fv fd -> Sv.union fv (vars_fc fd)) Sv.empty fds in
+    let has_wint v =
+       Annotations.has_symbol "uint" v.v_annot || Annotations.has_symbol "sint" v.v_annot in
+    let m =
+      Sv.fold (fun x m ->
+          if has_wint x then
+            begin match x.v_ty with
+            | Bty (U _) ->
+              let xi = V.mk x.v_name Inline tint x.v_dloc x.v_annot in
+              Mv.add x (Conv.cvar_of_var xi) m
+            | _ -> assert false
+            end
+          else m) fv Mv.empty in
+    let cp = Conv.cuprog_of_prog prog in
+    let info x =
+      let x = Conv.var_of_cvar x in
+       Mv.find_opt x m in
+    let cp = Wint_int.w2i_prog Arch.msf_size Arch.asmOp Arch.reg_size info cp in
+    let cp =
+      match cp with
+      | Utils0.Ok cp -> cp
+      | Utils0.Error e ->
+        let e = Conv.error_of_cerror (Printer.pp_err ~debug:false) e in
+        raise (HiError e) in
+    Conv.prog_of_cuprog cp in
 
   let prog =
     if pass <= Compiler.ParamsExpansion then prog
@@ -104,3 +135,4 @@ let parse_and_compile (type reg regx xreg rflag cond asm_op extra_op)
       | exception E.Found -> !res
   in
   prog
+

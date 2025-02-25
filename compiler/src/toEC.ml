@@ -363,7 +363,7 @@ module type EnvT = sig
   val pd: t -> Wsize.wsize
   val arch: t -> architecture
   val randombytes: t -> int list
-  val set_fun: t -> (int, 'a, 'b) gfunc -> t
+  val set_fun: t -> ('a, 'b) func -> t
   val add_Array: t -> int -> unit
   val add_WArray: t -> int -> unit
   val add_ArrayWords: t -> int -> int -> unit
@@ -596,6 +596,14 @@ let fmt_op2 fmt op =
     | E.Cmp_w (Unsigned, _) -> Format.fprintf fmt "\\u%s" ws
     | _                     -> Format.fprintf fmt "%s" is
   in
+  let fmt_div fmt ws is sg k =
+    match sg, k with
+    | Signed, E.Op_w _   -> Format.fprintf fmt "\\s%s" ws
+    | Unsigned, E.Op_w _ -> Format.fprintf fmt "\\u%s" ws
+    | Signed, E.Op_int   -> assert false (* FIXME  *)
+    | Unsigned, E.Op_int -> Format.fprintf fmt "%s" is
+  in
+
   let fmt_vop2 fmt (s,ve,ws) =
     Format.fprintf fmt "\\v%s%iu%i" s (int_of_velem ve) (int_of_ws ws)
   in
@@ -605,8 +613,8 @@ let fmt_op2 fmt op =
   | E.Oor    -> Format.fprintf fmt "\\/"
   | E.Oadd _ -> Format.fprintf fmt "+"
   | E.Omul _ -> Format.fprintf fmt "*"
-  | E.Odiv s -> fmt_signed fmt "div" "%/" s
-  | E.Omod s -> fmt_signed fmt "mod" "%%" s
+  | E.Odiv(sg, k) -> fmt_div fmt "div" "%/" sg k
+  | E.Omod(sg, k) -> fmt_div fmt "mod" "%%" sg k
 
   | E.Osub  _ -> Format.fprintf fmt "-"
 
@@ -630,6 +638,7 @@ let fmt_op2 fmt op =
   | Ovlsr(ve,ws) -> fmt_vop2 fmt ("shr", ve, ws)
   | Ovlsl(ve,ws) -> fmt_vop2 fmt ("shl", ve, ws)
   | Ovasr(ve,ws) -> fmt_vop2 fmt ("sar", ve, ws)
+  | Owi2 _ -> assert false (* FIXME *)
 
 let fmt_access aa = if aa = Warray_.AAdirect then "_direct" else ""
 
@@ -1385,14 +1394,15 @@ module EcExpression(EA: EcArray): EcExpression = struct
   let ec_op1 op e = match op with
     | E.Oword_of_int sz ->
       ec_apps1 (Format.sprintf "%s.of_int" (fmt_Wsz sz)) e
-    | E.Oint_of_word sz ->
-      ec_apps1 (Format.sprintf "%s.to_uint" (fmt_Wsz sz)) e
+    | E.Oint_of_word(s, sz) ->
+      ec_apps1 (Format.sprintf "%s.to_%sint" (string_of_signess s) (fmt_Wsz sz)) e
     | E.Osignext(szo,_szi) ->
       ec_apps1 (Format.sprintf "sigextu%i" (int_of_ws szo)) e
     | E.Ozeroext(szo,szi) -> ec_zeroext_sz (szo, szi) e
     | E.Onot     -> ec_apps1 "!" e
     | E.Olnot _  -> ec_apps1 "invw" e
     | E.Oneg _   -> ec_apps1 "-" e
+    | E.Owi1 _ -> assert false (* FIXME *)
 
   let rec toec_expr env (e: expr) =
       match e with
@@ -1490,7 +1500,7 @@ end
 module EcLeakConstantTimeGlobal(EE: EcExpression): EcLeakage = struct
   open EE
 
-  let int_of_word ws e = Papp1 (E.Oint_of_word ws, e)
+  let int_of_word ws e = Papp1 (E.Oint_of_word(Unsigned, ws), e)
 
   let rec leaks_e_rec pd leaks e =
     match e with
@@ -1588,7 +1598,7 @@ end
 module EcLeakLocal(EE: EcExpression) (EA: EcArray) (LC: LeakageConfig): EcLeakage = struct
   open EE
 
-  let int_of_word ws e = Papp1 (E.Oint_of_word ws, e)
+  let int_of_word ws e = Papp1 (E.Oint_of_word(Unsigned, ws), e)
 
   let expr2leak_val env e = match ty_expr e with
     | Arr (ws, n) ->

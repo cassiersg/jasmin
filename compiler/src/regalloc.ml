@@ -104,7 +104,7 @@ let find_var outs ins ap : _ option =
 
 let asm_equality_constraints ~loc pd reg_size asmOp is_move_op (int_of_var: var_i -> int option) (k: int -> int -> unit)
     (k': int -> int -> unit)
-    (lvs: 'ty glvals) (op: 'asm sopn) (es: 'ty gexprs) : unit =
+    (lvs: 'ty glvals) (op: 'asm sopn) (es:  'ty gexprs) : unit =
   let assert_compatible_types x y =
     let x = L.unloc x and y = L.unloc y in
     if types_cannot_conflict reg_size x.v_kind x.v_ty y.v_kind y.v_ty then

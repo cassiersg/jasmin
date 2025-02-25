@@ -53,7 +53,8 @@ Definition to_expr (t:stype) : sem_t t -> exec pexpr :=
 Definition ssem_sop1 (o: sop1) (e: pexpr) : pexpr := 
   let r := 
     Let x := of_expr _ e in
-    to_expr (sem_sop1_typed o x) in
+    Let v := sem_sop1_typed o x in
+    to_expr v in
   match r with 
   | Ok e => e
   | _ => Papp1 o e
@@ -423,7 +424,7 @@ Fixpoint const_prop_rvs globs (m:cpm) (rvs:lvals) : cpm * lvals :=
 Definition wsize_of_stype (ty: stype) : wsize :=
   if ty is sword sz then sz else U64.
 
-Definition add_cpm (m:cpm) (rv:lval) tag ty e :=
+Definition add_cpm (m:cpm) (rv:lval) tag ty (e : pexpr) :=
   if rv is Lvar x then
     if tag is AT_inline then
       match e with
@@ -459,7 +460,7 @@ Section CMD.
 
 End CMD.
 
-Definition is_update_imm (xs:lvals) o es :=
+Definition is_update_imm (xs:lvals) o (es : pexprs) :=
   match o, es, xs with
   | Oslh SLHupdate, [:: Pbool b; e], [:: x] => Some (x, b, e)
   | _, _, _=> None

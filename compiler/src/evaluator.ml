@@ -7,6 +7,7 @@ open Var0
 open Varmap
 open Low_memory
 open Expr
+open Sem_op_typed
 open Psem_defs
 open Values
 open Sem_params
@@ -39,8 +40,8 @@ let of_val_b ii v : bool =
 type 'asm stack = 
   | Sempty of instr_info * 'asm fundef
   | Scall of 
-      instr_info * 'asm fundef * lval list * Vm.t * 'asm instr list * 'asm stack
-  | Sfor of instr_info * var_i * coq_Z list * 'asm instr list * 'asm instr list * 'asm stack
+      instr_info *  'asm fundef * lval list * Vm.t *  'asm instr list * 'asm stack
+  | Sfor of instr_info * var_i * coq_Z list *  'asm instr list *  'asm instr list * 'asm stack
 
 type ('syscall_state, 'asm) state =
   { s_prog : 'asm prog;
@@ -133,7 +134,7 @@ let small_step1 ep spp sip s =
         | None -> assert false in
       let vargs = exn_exec ii (mapM2 ErrType truncate_val f.f_tyin vargs') in
       let {escs; emem = m1; evm = vm1}  = s1 in
-      let stk = Scall(ii,f, xs, vm1, c, s.s_stk) in
+      let stk = Scall(ii, f, xs, vm1, c, s.s_stk) in
       let sf = 
         exn_exec ii (write_vars nosubword ep true f.f_params vargs {escs; emem = m1; evm = Vm.init nosubword}) in
       {s with s_cmd = f.f_body;
@@ -176,7 +177,7 @@ let run (type reg regx xreg rflag cond asm_op extra_op)
                and type extra_op = extra_op)
       (p :
          (reg, regx, xreg, rflag, cond, asm_op, extra_op) Arch_extra.extended_op
-           Expr.uprog) ii fn args m =
+           Expr.prog) ii fn args m =
   let ep = Sem_params_of_arch_extra.ep_of_asm_e A.asm_e Syscall_ocaml.sc_sem in
   let spp = Sem_params_of_arch_extra.spp_of_asm_e A.asm_e in
   let sip =

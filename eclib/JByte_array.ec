@@ -274,6 +274,20 @@ abstract theory ByteArray.
       rewrite (mulzC r i) edivz_eq 1:/# emodz_eq 1:/#.
       smt().
     qed.
+
+    lemma init'S_ext f1 f2:
+      (forall x, 0 <= r*x < ByteArray.size => f1 x = f2 x) =>
+      init'S f1 = init'S f2.
+    proof.
+      rewrite /init'S => h.
+      apply ext_eq'S => i hi.
+      apply _wordP => k hk.
+      rewrite !get'Sd_byte 1,2:// !get8_init'S.
+      rewrite (mulzC r i) edivz_eq 2:emodz_eq; 1,2: by apply bound_abs.
+      case (0 <= i*r+k < ByteArray.size) => hi' //.
+      by rewrite h.
+    qed.
+
   end WSB.
 
   clone include WSB with

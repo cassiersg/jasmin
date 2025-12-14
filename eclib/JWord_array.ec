@@ -43,6 +43,91 @@ abstract theory WArray.
   axiomatized by get256E.
 
   abbrev get256 (t:t) (i:int) : W256.t = get256_direct t (32 * i).
+  
+  lemma get16_bits t i: (get16 t (i%/2)) \bits8 (i%%2) = t.[i].
+  proof.
+    rewrite /get16_direct pack2bE 1:modz_cmp 1:// W2u8.Pack.initE /=.
+    by rewrite ifT 1:modz_cmp 1:// mulzC -divz_eq.
+  qed.
+  
+  lemma get32_bits t i: (get32 t (i%/4)) \bits8 (i%%4) = t.[i].
+  proof.
+    rewrite /get32_direct pack4bE 1:modz_cmp 1:// W4u8.Pack.initE /=.
+    by rewrite ifT 1:modz_cmp 1:// mulzC -divz_eq.
+  qed.
+  
+  lemma get64_bits t i: (get64 t (i%/8)) \bits8 (i%%8) = t.[i].
+  proof.
+    rewrite /get64_direct pack8bE 1:modz_cmp 1:// W8u8.Pack.initE /=.
+    by rewrite ifT 1:modz_cmp 1:// mulzC -divz_eq.
+  qed.
+  
+  lemma get128_bits t i: (get128 t (i%/16)) \bits8 (i%%16) = t.[i].
+  proof.
+    rewrite /get128_direct pack16bE 1:modz_cmp 1:// W16u8.Pack.initE /=.
+    by rewrite ifT 1:modz_cmp 1:// mulzC -divz_eq.
+  qed.
+  
+  lemma get256_bits t i: (get256 t (i%/32)) \bits8 (i%%32) = t.[i].
+  proof.
+    rewrite /get256_direct pack32bE 1:modz_cmp 1:// W32u8.Pack.initE /=.
+    by rewrite ifT 1:modz_cmp 1:// mulzC -divz_eq.
+  qed.
+
+  lemma ext_eq8 (t1 t2: t):
+    (forall x, 0 <= x < size => get8 t1 x = get8 t2 x) =>
+    t1 = t2.
+  proof.
+    rewrite /get8.
+    apply ext_eq.
+  qed.
+  
+  lemma ext_eq16 (t1 t2: t):
+    (forall x, 0 <= 2*x < size => get16 t1 x = get16 t2 x) =>
+    t1 = t2.
+  proof.
+    move => h; apply ext_eq => i hi.
+    rewrite -!get16_bits; congr.
+    apply h; 1: smt().
+  qed.
+  
+  lemma ext_eq32 (t1 t2: t):
+    (forall x, 0 <= 2*x < size => get32 t1 x = get32 t2 x) =>
+    t1 = t2.
+  proof.
+    move => h; apply ext_eq => i hi.
+    rewrite -!get32_bits; congr.
+    apply h; 1: smt().
+  qed.
+  
+  lemma ext_eq64 (t1 t2: t):
+    (forall x, 0 <= 2*x < size => get64 t1 x = get64 t2 x) =>
+    t1 = t2.
+  proof.
+    move => h; apply ext_eq => i hi.
+    rewrite -!get64_bits; congr.
+    apply h; 1: smt().
+  qed.
+  
+  lemma ext_eq128 (t1 t2: t):
+    (forall x, 0 <= 2*x < size => get128 t1 x = get128 t2 x) =>
+    t1 = t2.
+  proof.
+    move => h; apply ext_eq => i hi.
+    rewrite -!get128_bits; congr.
+    apply h; 1: smt().
+  qed.
+  
+  lemma ext_eq256 (t1 t2: t):
+    (forall x, 0 <= 2*x < size => get256 t1 x = get256 t2 x) =>
+    t1 = t2.
+  proof.
+    move => h; apply ext_eq => i hi.
+    rewrite -!get256_bits; congr.
+    apply h; 1: smt().
+  qed.
+
+  (* -------------------------------------------------------- *)
 
   op set8 (t:t) (i:int) (w:W8.t) : t = t.[i <- w].
   abbrev [-printing] set8_direct (t:t) (i:int) (w:W8.t) : t = t.[i <- w].
@@ -250,6 +335,58 @@ abstract theory WArray.
   op init256 (f:int -> W256.t) =
     init (fun i => f (i %/ 32) \bits8 (i%%32)).
 
+  lemma init8_ext (f1 f2: int -> W8.t):
+    (forall x, 0 <= x < size => f1 x = f2 x) =>
+    init8 f1 = init8 f2.
+  proof.
+    rewrite /init8.
+    apply init_ext.
+  qed.
+
+  lemma init16_ext (f1 f2: int -> W16.t):
+    (forall x, 0 <= 2*x < size => f1 x = f2 x) =>
+    init16 f1 = init16 f2.
+  proof.
+    rewrite /init16 => h.
+    apply init_ext => i hi /=.
+    by rewrite (h (i%/2)); 1: smt().
+  qed.
+
+  lemma init32_ext (f1 f2: int -> W32.t):
+    (forall x, 0 <= 4*x < size => f1 x = f2 x) =>
+    init32 f1 = init32 f2.
+  proof.
+    rewrite /init32 => h.
+    apply init_ext => i hi /=.
+    by rewrite (h (i%/4)); 1: smt().
+  qed.
+
+  lemma init64_ext (f1 f2: int -> W64.t):
+    (forall x, 0 <= 8*x < size => f1 x = f2 x) =>
+    init64 f1 = init64 f2.
+  proof.
+    rewrite /init64 => h.
+    apply init_ext => i hi /=.
+    by rewrite (h (i%/8)); 1: smt().
+  qed.
+
+  lemma init128_ext (f1 f2: int -> W128.t):
+    (forall x, 0 <= 16*x < size => f1 x = f2 x) =>
+    init128 f1 = init128 f2.
+  proof.
+    rewrite /init128 => h.
+    apply init_ext => i hi /=.
+    by rewrite (h (i%/16)); 1: smt().
+  qed.
+
+  lemma init256_ext (f1 f2: int -> W256.t):
+    (forall x, 0 <= 32*x < size => f1 x = f2 x) =>
+    init256 f1 = init256 f2.
+  proof.
+    rewrite /init256 => h.
+    apply init_ext => i hi /=.
+    by rewrite (h (i%/32)); 1: smt().
+  qed.
   (* ------------------------------------------------- *)
 
   clone PolyArray as ArrayW8.
